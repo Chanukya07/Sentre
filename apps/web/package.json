@@ -15,7 +15,9 @@
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.0",
     "@neondatabase/serverless": "^1.1.0",
+    "ai": "^5.0.0",
     "@sentre/rag-core": "*",
     "@sentre/retail-core": "*",
     "@sentre/sentimental-core": "*",
