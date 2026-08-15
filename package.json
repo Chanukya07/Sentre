@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "AI-powered retail + sentimental commerce platform with RAG capabilities",
+  "packageManager": "npm@10.9.7",
   "workspaces": [
     "apps/*",
     "packages/*"
