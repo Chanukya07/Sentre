@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/*
+ * Sentre design tokens — "warm nostalgia".
+ * Parchment ground, espresso ink, burnt-amber accent; dark mode keeps the
+ * same warmth on a deep coffee ground. All colors flow through these
+ * variables so both themes stay in lockstep.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --canvas: #faf6ef;
+  --surface: #fffdf8;
+  --ink: #2b2118;
+  --ink-muted: #8a7a6a;
+  --accent: #b4562e;
+  --accent-strong: #96451f;
+  --accent-soft: #f4e6d7;
+  --line: #e8ddcc;
+  --gold: #c99a4b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --canvas: #191411;
+    --surface: #221c17;
+    --ink: #f0e7db;
+    --ink-muted: #a2907e;
+    --accent: #e08d5a;
+    --accent-strong: #edaa80;
+    --accent-soft: #33261c;
+    --line: #38302a;
+    --gold: #d9b06a;
   }
 }
 
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-line: var(--line);
+  --color-gold: var(--gold);
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
 }

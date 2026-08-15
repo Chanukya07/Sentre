@@ -39,51 +39,63 @@ export function RagPlayground() {
 
   return (
     <div className="mt-8">
-      <textarea
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-        rows={3}
-        className="w-full rounded border border-zinc-300 bg-transparent p-3 text-sm dark:border-zinc-700"
-      />
-
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <select
-          value={engine}
-          onChange={(e) => setEngine(e.target.value as RagEngineName)}
-          className="rounded border border-zinc-300 bg-transparent px-2 py-1.5 text-sm dark:border-zinc-700"
-        >
-          {RAG_ENGINES.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={runQuery}
-          disabled={loading || !question.trim()}
-          className="rounded bg-zinc-900 px-4 py-1.5 text-sm text-white disabled:opacity-50 dark:bg-white dark:text-zinc-900"
-        >
-          {loading ? "Running..." : "Run query"}
-        </button>
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface focus-within:border-accent">
+        <textarea
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          rows={3}
+          placeholder="Ask about the catalog…"
+          className="w-full resize-none bg-transparent p-4 text-sm outline-none placeholder:text-ink-muted"
+        />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line bg-canvas/50 px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-ink-muted">Engine</span>
+            <select
+              value={engine}
+              onChange={(e) => setEngine(e.target.value as RagEngineName)}
+              className="rounded-full border border-line bg-canvas px-3 py-1.5 text-sm outline-none transition focus:border-accent"
+            >
+              {RAG_ENGINES.map((name) => (
+                <option key={name} value={name}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={runQuery}
+            disabled={loading || !question.trim()}
+            className="rounded-full bg-accent px-5 py-2 text-sm font-medium text-canvas transition hover:bg-accent-strong disabled:opacity-50"
+          >
+            {loading ? "Retrieving…" : "Run query"}
+          </button>
+        </div>
       </div>
 
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-sm text-accent-strong">{error}</p>}
 
       {result && (
-        <div className="mt-6 space-y-4">
-          <div className="rounded border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">{result.engine}</p>
-            <p className="mt-2 whitespace-pre-wrap">{result.answer}</p>
+        <div className="mt-8 space-y-6">
+          <div className="rounded-2xl border border-line bg-surface p-5">
+            <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-xs text-accent-strong">
+              {result.engine}
+            </span>
+            <p className="mt-3 whitespace-pre-wrap leading-relaxed">{result.answer}</p>
           </div>
 
           {result.sources.length > 0 && (
             <div>
-              <p className="text-xs uppercase tracking-wide text-zinc-500">Sources</p>
-              <ul className="mt-2 space-y-2">
-                {result.sources.map((source) => (
-                  <li key={source.id} className="rounded border border-zinc-200 p-3 text-xs dark:border-zinc-800">
-                    <span className="text-zinc-500">score {source.score.toFixed(3)}</span>
-                    <p className="mt-1">{source.text}</p>
+              <p className="text-xs uppercase tracking-widest text-ink-muted">
+                Retrieved sources
+              </p>
+              <ul className="mt-3 space-y-3">
+                {result.sources.map((source, i) => (
+                  <li key={source.id} className="rounded-xl border border-line bg-surface p-4 text-sm">
+                    <div className="flex items-center justify-between text-xs text-ink-muted">
+                      <span>[{i + 1}]</span>
+                      <span className="font-mono">score {source.score.toFixed(3)}</span>
+                    </div>
+                    <p className="mt-2 leading-relaxed text-ink-muted">{source.text}</p>
                   </li>
                 ))}
               </ul>
