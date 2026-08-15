@@ -11,7 +11,16 @@ function formatPrice(cents: number): string {
 }
 
 export default async function Home() {
-  const products = await new ProductService(getDb()).listProducts();
+  // Degrade to the empty state when the database is unreachable or not yet
+  // configured (fresh clone, missing DATABASE_URL) instead of hard-crashing
+  // the storefront.
+  let products: Awaited<ReturnType<ProductService["listProducts"]>> = [];
+  let dbError: string | null = null;
+  try {
+    products = await new ProductService(getDb()).listProducts();
+  } catch (error) {
+    dbError = error instanceof Error ? error.message : "Database unavailable";
+  }
 
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-12">
@@ -27,7 +36,16 @@ export default async function Home() {
         </p>
       </header>
 
-      {products.length === 0 ? (
+      {dbError ? (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+          <p className="font-medium">Database not configured</p>
+          <p className="mt-1">
+            {dbError}. Set <code className="rounded bg-amber-100 px-1 py-0.5 dark:bg-amber-900/60">DATABASE_URL</code>{" "}
+            in <code className="rounded bg-amber-100 px-1 py-0.5 dark:bg-amber-900/60">.env.local</code> and run the
+            offline pipeline to seed the catalog.
+          </p>
+        </div>
+      ) : products.length === 0 ? (
         <p className="text-zinc-500">
           No products yet — run the offline pipeline (
           <code className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">
