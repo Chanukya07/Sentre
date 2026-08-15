@@ -15,7 +15,8 @@ function toVectorLiteral(values: number[]): string {
  * the HNSW index created in the Drizzle migration.
  */
 export class PgVectorStore implements VectorStore {
-  constructor(private readonly db: NeonHttpDatabase) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers pass their own composed schema type; this store only uses schema-agnostic query builder methods
+  constructor(private readonly db: NeonHttpDatabase<any>) {}
 
   async upsert(vectors: EmbeddingVector[]): Promise<void> {
     for (const vector of vectors) {
