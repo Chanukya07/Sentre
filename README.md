@@ -41,6 +41,7 @@ npm install
 npm run dev          # starts apps/web via Turbo
 npm run build        # builds every package + the web app
 npm run type-check    # type-checks every package
+npm run test         # runs unit tests (vitest) across packages
 ```
 
 Health check: `curl http://localhost:3000/api/health`

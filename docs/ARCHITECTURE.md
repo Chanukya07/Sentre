@@ -83,6 +83,13 @@ themselves are also swappable.
 
 - `npm run build` (root, via Turbo) builds every package and the web app.
 - `npm run type-check` (root) type-checks every package.
+- `npm run test` (root) runs the vitest suites. They cover the logic that
+  fails *silently* rather than loudly: cosine ranking order, prompt source
+  numbering, engine-factory coverage of every `RagEngineName`, that questions
+  are embedded with `input_type: "query"` (embedding them as `"document"`
+  degrades retrieval without erroring), and that `StoryGenerator` filters
+  retrieval to `is_nostalgic` reviews. Network and LLM calls are mocked, so
+  the suite needs no API keys and no database.
 - `packages/rag-core/examples/compare-engines.ts` exercises all four engines
   end-to-end against an in-memory store (needs `ANTHROPIC_API_KEY` and
   `VOYAGE_API_KEY`).

@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint src",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
     "clean": "true",
     "example:compare-engines": "tsx examples/compare-engines.ts"
   },
