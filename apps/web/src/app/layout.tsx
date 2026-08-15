@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
+import { Fraunces } from "next/font/google";
 import Link from "next/link";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  axes: ["opsz", "SOFT"],
+});
 
 export const metadata: Metadata = {
   title: "Sentre — scents that remember",
@@ -15,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`${fraunces.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
         <nav className="sticky top-0 z-20 border-b border-line bg-canvas/85 backdrop-blur">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">

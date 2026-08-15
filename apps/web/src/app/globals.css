@@ -16,6 +16,14 @@
   --accent-soft: #f4e6d7;
   --line: #e8ddcc;
   --gold: #c99a4b;
+
+  /* Scent-family tints for product card headers. */
+  --tint-amber: #ecd9b8;
+  --tint-woody: #d9e0cd;
+  --tint-citrus: #f4ecc0;
+  --tint-powdery: #e8dfe8;
+  --tint-spicy: #eed3c2;
+  --tint-aquatic: #d3e3e6;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -29,6 +37,13 @@
     --accent-soft: #33261c;
     --line: #38302a;
     --gold: #d9b06a;
+
+    --tint-amber: #3a2f1c;
+    --tint-woody: #27301f;
+    --tint-citrus: #383417;
+    --tint-powdery: #322a34;
+    --tint-spicy: #3a2619;
+    --tint-aquatic: #1f3134;
   }
 }
 
@@ -42,7 +57,13 @@
   --color-accent-soft: var(--accent-soft);
   --color-line: var(--line);
   --color-gold: var(--gold);
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --color-tint-amber: var(--tint-amber);
+  --color-tint-woody: var(--tint-woody);
+  --color-tint-citrus: var(--tint-citrus);
+  --color-tint-powdery: var(--tint-powdery);
+  --color-tint-spicy: var(--tint-spicy);
+  --color-tint-aquatic: var(--tint-aquatic);
+  --font-display: var(--font-fraunces), "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -55,4 +76,52 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--canvas);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/*
+ * Paper grain: a barely-there turbulence layer over hero surfaces so the
+ * parchment reads as material rather than flat color. Pure CSS/SVG — no
+ * asset request.
+ */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0 0.25 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Entrance animation, staggered via --rise-delay. Disabled for users who
+   prefer reduced motion. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.anim-rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise {
+    animation: none;
+  }
 }
