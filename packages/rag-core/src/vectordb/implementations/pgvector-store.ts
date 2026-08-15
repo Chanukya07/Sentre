@@ -34,6 +34,10 @@ export class PgVectorStore implements VectorStore {
     const sourceTypeFilter = filters?.sourceType
       ? sql`AND source_type = ${filters.sourceType}`
       : sql``;
+    // metadata.is_nostalgic is set by the offline ABSA pipeline for review embeddings.
+    const nostalgicFilter = filters?.isNostalgic
+      ? sql`AND metadata->>'is_nostalgic' = 'true'`
+      : sql``;
 
     const rows = await this.db.execute<{
       id: string;
@@ -43,7 +47,7 @@ export class PgVectorStore implements VectorStore {
     }>(sql`
       SELECT id, content, metadata, embedding <=> ${vectorLiteral}::vector AS distance
       FROM embeddings
-      WHERE embedding IS NOT NULL ${sourceTypeFilter}
+      WHERE embedding IS NOT NULL ${sourceTypeFilter} ${nostalgicFilter}
       ORDER BY distance ASC
       LIMIT ${topK}
     `);
