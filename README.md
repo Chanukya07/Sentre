@@ -75,7 +75,9 @@ npm run example:compare-engines --workspace=@sentre/rag-core
 ```
 
 Or use `/rag-playground` in the running app to compare engines against the
-real catalog.
+real catalog, and `/chat` for the streaming, sentiment-aware concierge
+(frustrated messages are flagged for human escalation and persisted to the
+`conversations` table).
 
 ## Deploy
 

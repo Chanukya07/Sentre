@@ -46,6 +46,11 @@ Runtime (apps/web, Next.js Route Handlers)
   POST /api/rag/query          -> rag-core: embed question (Voyage) -> PgVectorStore -> chosen engine -> LLM
   POST /api/stories            -> sentimental-core StoryGenerator -> rag-core engine
                                    (retrieval filtered to is_nostalgic=true reviews) -> narrative
+  POST /api/chat               -> sentimental-core SentimentMonitor classifies the turn
+                                   (frustration >= 2 or model flag => escalated), persists it via
+                                   ConversationService, retrieves grounding chunks, then streams the
+                                   answer (Vercel AI SDK streamText); escalation/sentiment surface
+                                   to the UI as x-sentre-* response headers
 ```
 
 Query-time embeddings use the same Voyage model (`voyage-4-lite`) as the

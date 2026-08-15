@@ -26,6 +26,9 @@ export default function RootLayout({
               <Link href="/" className="text-ink-muted transition hover:text-ink">
                 Catalog
               </Link>
+              <Link href="/chat" className="text-ink-muted transition hover:text-ink">
+                Concierge
+              </Link>
               <Link
                 href="/rag-playground"
                 className="rounded-full border border-line bg-surface px-4 py-1.5 text-ink transition hover:border-accent hover:text-accent"
