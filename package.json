@@ -18,6 +18,7 @@
     "db:generate": "turbo run db:generate --filter=web",
     "db:migrate": "turbo run db:migrate --filter=web",
     "db:push": "turbo run db:push --filter=web",
+    "db:seed": "npm run db:seed --workspace=web",
     "offline:generate": "python3 scripts/offline/generate_synthetic_data.py",
     "offline:absa": "python3 scripts/offline/run_absa.py",
     "offline:index": "python3 scripts/offline/index_embeddings.py"

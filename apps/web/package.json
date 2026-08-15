@@ -11,7 +11,8 @@
     "clean": "rm -rf .next",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
@@ -19,6 +20,7 @@
     "@sentre/retail-core": "*",
     "@sentre/sentimental-core": "*",
     "@sentre/shared": "*",
+    "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "^0.45.2",
     "next": "^15.5.22",
     "pgvector": "^0.3.0",

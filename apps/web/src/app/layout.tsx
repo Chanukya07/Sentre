@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Sentre",
-  description: "AI retail assistant with RAG and sentiment-aware responses.",
+  title: "Sentre — scents that remember",
+  description:
+    "A nostalgia-driven fragrance shop. Real customer memories, retrieved and retold as stories by four interchangeable RAG engines.",
 };
 
 export default function RootLayout({
@@ -14,18 +16,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
-        <nav className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800">
-          <div className="mx-auto flex w-full max-w-5xl items-center gap-6 text-sm">
-            <Link href="/" className="font-semibold">
-              Sentre
+      <body className="flex min-h-full flex-col">
+        <nav className="sticky top-0 z-20 border-b border-line bg-canvas/85 backdrop-blur">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+            <Link href="/" className="font-display text-xl tracking-tight">
+              Sentre<span className="text-accent">.</span>
             </Link>
-            <Link href="/rag-playground" className="text-zinc-600 hover:underline dark:text-zinc-400">
-              RAG playground
-            </Link>
+            <div className="flex items-center gap-6 text-sm">
+              <Link href="/" className="text-ink-muted transition hover:text-ink">
+                Catalog
+              </Link>
+              <Link
+                href="/rag-playground"
+                className="rounded-full border border-line bg-surface px-4 py-1.5 text-ink transition hover:border-accent hover:text-accent"
+              >
+                RAG playground
+              </Link>
+            </div>
           </div>
         </nav>
-        {children}
+
+        <div className="flex-1">{children}</div>
+
+        <footer className="border-t border-line">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-ink-muted sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              <span className="font-display text-ink">Sentre</span> — retrieval-grounded storytelling for retail.
+            </p>
+            <p>Next.js · Neon pgvector · four RAG engines</p>
+          </div>
+        </footer>
+        <SpeedInsights />
       </body>
     </html>
   );
