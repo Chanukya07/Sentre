@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({
             <p>Next.js · Neon pgvector · four RAG engines</p>
           </div>
         </footer>
+        <SpeedInsights />
       </body>
     </html>
   );
