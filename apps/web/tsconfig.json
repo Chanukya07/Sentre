@@ -1,0 +1,50 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@sentre/shared": ["../../packages/shared/src"],
+      "@sentre/shared/*": ["../../packages/shared/src/*"],
+      "@sentre/rag-core": ["../../packages/rag-core/src"],
+      "@sentre/rag-core/*": ["../../packages/rag-core/src/*"],
+      "@sentre/retail-core": ["../../packages/retail-core/src"],
+      "@sentre/retail-core/*": ["../../packages/retail-core/src/*"],
+      "@sentre/sentimental-core": ["../../packages/sentimental-core/src"],
+      "@sentre/sentimental-core/*": ["../../packages/sentimental-core/src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

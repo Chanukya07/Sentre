@@ -2,38 +2,33 @@
   "name": "sentre",
   "version": "0.1.0",
   "private": true,
+  "description": "AI-powered retail + sentimental commerce platform with RAG capabilities",
+  "packageManager": "npm@10.9.7",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "turbo run db:generate --filter=web",
+    "db:migrate": "turbo run db:migrate --filter=web",
+    "db:push": "turbo run db:push --filter=web",
     "offline:generate": "python3 scripts/offline/generate_synthetic_data.py",
     "offline:absa": "python3 scripts/offline/run_absa.py",
     "offline:index": "python3 scripts/offline/index_embeddings.py"
   },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.115.0",
-    "@neondatabase/serverless": "^1.1.0",
-    "drizzle-orm": "^0.45.2",
-    "next": "^15.5.22",
-    "pgvector": "^0.3.0",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "zod": "^4.4.3"
-  },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "drizzle-kit": "^0.31.10",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.12",
-    "tailwindcss": "^4",
-    "tsx": "^4.23.1",
-    "typescript": "^5"
+    "turbo": "^2.3.0",
+    "typescript": "^5",
+    "vitest": "^3.2.7"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }

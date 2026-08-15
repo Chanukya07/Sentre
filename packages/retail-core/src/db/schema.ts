@@ -1,13 +1,4 @@
-import {
-  boolean,
-  integer,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  vector,
-} from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const products = pgTable("products", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -21,6 +12,11 @@ export const products = pgTable("products", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
 
+/**
+ * retail-core owns the review record itself; the sentiment/emotion_tags/
+ * is_nostalgic columns are enriched by sentimental-core's ABSA pipeline
+ * writing back onto this same row rather than a separate joined table.
+ */
 export const reviews = pgTable("reviews", {
   id: uuid("id").primaryKey().defaultRandom(),
   productId: uuid("product_id").references(() => products.id),
@@ -30,25 +26,5 @@ export const reviews = pgTable("reviews", {
   sentiment: jsonb("sentiment"),
   emotionTags: text("emotion_tags").array(),
   isNostalgic: boolean("is_nostalgic").default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
-
-export const embeddings = pgTable("embeddings", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sourceType: text("source_type").notNull(),
-  sourceId: uuid("source_id").notNull(),
-  content: text("content").notNull(),
-  embedding: vector("embedding", { dimensions: 1024 }),
-  metadata: jsonb("metadata"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
-
-export const conversations = pgTable("conversations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  sessionId: text("session_id").notNull(),
-  role: text("role").notNull(),
-  content: text("content").notNull(),
-  sentimentDetected: jsonb("sentiment_detected"),
-  escalated: boolean("escalated").default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

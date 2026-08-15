@@ -1,42 +1,27 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@sentre/shared": ["packages/shared/src"],
+      "@sentre/shared/*": ["packages/shared/src/*"],
+      "@sentre/rag-core": ["packages/rag-core/src"],
+      "@sentre/rag-core/*": ["packages/rag-core/src/*"],
+      "@sentre/retail-core": ["packages/retail-core/src"],
+      "@sentre/retail-core/*": ["packages/retail-core/src/*"],
+      "@sentre/sentimental-core": ["packages/sentimental-core/src"],
+      "@sentre/sentimental-core/*": ["packages/sentimental-core/src/*"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules", "**/dist", "**/.next"]
 }
