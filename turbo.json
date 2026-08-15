@@ -4,6 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "env": ["DATABASE_URL", "ANTHROPIC_API_KEY", "VOYAGE_API_KEY", "DEFAULT_RAG_ENGINE"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
