@@ -25,7 +25,15 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
+      "@sentre/shared": ["../../packages/shared/src"],
+      "@sentre/shared/*": ["../../packages/shared/src/*"],
+      "@sentre/rag-core": ["../../packages/rag-core/src"],
+      "@sentre/rag-core/*": ["../../packages/rag-core/src/*"],
+      "@sentre/retail-core": ["../../packages/retail-core/src"],
+      "@sentre/retail-core/*": ["../../packages/retail-core/src/*"],
+      "@sentre/sentimental-core": ["../../packages/sentimental-core/src"],
+      "@sentre/sentimental-core/*": ["../../packages/sentimental-core/src/*"]
     }
   },
   "include": [
