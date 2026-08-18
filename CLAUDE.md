@@ -40,6 +40,10 @@ the package and use its scripts. One test file:
 - **Adding a RAG engine**: implement `RagEngine` (one `query()` method), add
   the name to `RagEngineName` in `packages/shared/src/types/rag.ts`, add a
   case in `rag-core/src/engine-factory.ts`. Nothing else changes.
+- **Generation provider is env-driven, retrieval is not.** `resolveLlmConfig()`
+  (`rag-core/src/llm/config.ts`) turns `LLM_PROVIDER` into an `LlmConfig` that
+  every engine and `SentimentMonitor` accepts. Adding a provider means one
+  branch there plus one client branch per engine — never a new retrieval path.
 - **Embeddings must stay in one vector space**: query-time embedding uses
   Voyage `voyage-4-lite` with `input_type: "query"`; indexed documents used
   `"document"`. Changing the model requires re-indexing everything.

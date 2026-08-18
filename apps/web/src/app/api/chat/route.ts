@@ -1,10 +1,10 @@
-import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { PgVectorStore, embedText } from "@sentre/rag-core";
+import { PgVectorStore, createLanguageModel, embedText, resolveLlmConfig } from "@sentre/rag-core";
 import { ConversationService, SentimentMonitor, buildChatSystemPrompt } from "@sentre/sentimental-core";
 import { getDb } from "@/db";
+import { getVoyageApiKey } from "@/lib/rag";
 
 const RequestSchema = z.object({
   sessionId: z.string().min(8),
@@ -25,21 +25,14 @@ export async function POST(request: Request) {
   }
   const { sessionId, message } = parsed.data;
 
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
-  const voyageApiKey = process.env.VOYAGE_API_KEY;
-  if (!anthropicApiKey || !voyageApiKey) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY and VOYAGE_API_KEY must be set" },
-      { status: 500 },
-    );
-  }
-
   try {
+    const llm = resolveLlmConfig();
+    const voyageApiKey = getVoyageApiKey();
     const db = getDb();
     const conversationService = new ConversationService(db);
 
     const [sentiment, history, queryEmbedding] = await Promise.all([
-      new SentimentMonitor(anthropicApiKey).analyze(message),
+      new SentimentMonitor(llm).analyze(message),
       conversationService.listBySession(sessionId),
       embedText(message, "query", voyageApiKey),
     ]);
@@ -55,7 +48,7 @@ export async function POST(request: Request) {
     const chunks = await new PgVectorStore(db).query(queryEmbedding, 5);
 
     const result = streamText({
-      model: anthropic("claude-haiku-4-5-20251001"),
+      model: createLanguageModel(llm),
       system: buildChatSystemPrompt(chunks, sentiment),
       messages: [
         // Keep the last few turns so the concierge remembers the session.

@@ -1,10 +1,16 @@
 import { Anthropic as LlamaIndexAnthropic } from "@llamaindex/anthropic";
+import { OpenAI as LlamaIndexOpenAI } from "@llamaindex/openai";
 import type { RagQuery, RagResponse } from "@sentre/shared";
 import { DEFAULT_TOP_K } from "@sentre/shared";
 import { RagEngine, RagEngineError } from "./base-engine";
 import type { VectorStore } from "../vectordb/interface";
+import type { LlmConfig } from "../llm/config";
 import { embedText } from "../embeddings/voyage-client";
 import { buildRagPrompt } from "../prompts/rag-prompt";
+
+interface CompletingLlm {
+  complete(params: { prompt: string }): Promise<{ text: string }>;
+}
 
 /**
  * LlamaIndex engine. Uses LlamaIndex's LLM wrapper for generation while
@@ -14,14 +20,22 @@ import { buildRagPrompt } from "../prompts/rag-prompt";
  */
 export class LlamaIndexEngine extends RagEngine {
   readonly name = "llamaindex" as const;
-  private readonly llm: LlamaIndexAnthropic;
+  private readonly llmClient: CompletingLlm;
 
-  constructor(vectorStore: VectorStore, anthropicApiKey: string, private readonly voyageApiKey: string) {
+  constructor(
+    vectorStore: VectorStore,
+    llm: LlmConfig,
+    private readonly voyageApiKey: string,
+  ) {
     super(vectorStore);
-    this.llm = new LlamaIndexAnthropic({
-      model: "claude-haiku-4-5-20251001",
-      apiKey: anthropicApiKey,
-    });
+    this.llmClient =
+      llm.provider === "openrouter"
+        ? (new LlamaIndexOpenAI({
+            model: llm.model,
+            apiKey: llm.apiKey,
+            additionalSessionOptions: { baseURL: llm.baseUrl },
+          }) as unknown as CompletingLlm)
+        : (new LlamaIndexAnthropic({ model: llm.model, apiKey: llm.apiKey }) as unknown as CompletingLlm);
   }
 
   async query(input: RagQuery): Promise<RagResponse> {
@@ -29,7 +43,7 @@ export class LlamaIndexEngine extends RagEngine {
       const queryEmbedding = await embedText(input.question, "query", this.voyageApiKey);
       const chunks = await this.vectorStore.query(queryEmbedding, input.topK ?? DEFAULT_TOP_K, input.filters);
 
-      const response = await this.llm.complete({ prompt: buildRagPrompt(input.question, chunks) });
+      const response = await this.llmClient.complete({ prompt: buildRagPrompt(input.question, chunks) });
 
       return { answer: response.text, sources: chunks, engine: this.name };
     } catch (error) {

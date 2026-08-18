@@ -1,9 +1,12 @@
 import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatOpenAI } from "@langchain/openai";
+import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { HumanMessage } from "@langchain/core/messages";
 import type { RagQuery, RagResponse } from "@sentre/shared";
 import { DEFAULT_TOP_K } from "@sentre/shared";
 import { RagEngine, RagEngineError } from "./base-engine";
 import type { VectorStore } from "../vectordb/interface";
+import type { LlmConfig } from "../llm/config";
 import { embedText } from "../embeddings/voyage-client";
 import { buildRagPrompt } from "../prompts/rag-prompt";
 
@@ -15,14 +18,22 @@ import { buildRagPrompt } from "../prompts/rag-prompt";
  */
 export class LangChainEngine extends RagEngine {
   readonly name = "langchain" as const;
-  private readonly model: ChatAnthropic;
+  private readonly model: BaseChatModel;
 
-  constructor(vectorStore: VectorStore, anthropicApiKey: string, private readonly voyageApiKey: string) {
+  constructor(
+    vectorStore: VectorStore,
+    llm: LlmConfig,
+    private readonly voyageApiKey: string,
+  ) {
     super(vectorStore);
-    this.model = new ChatAnthropic({
-      model: "claude-haiku-4-5-20251001",
-      apiKey: anthropicApiKey,
-    });
+    this.model =
+      llm.provider === "openrouter"
+        ? new ChatOpenAI({
+            model: llm.model,
+            apiKey: llm.apiKey,
+            configuration: { baseURL: llm.baseUrl },
+          })
+        : new ChatAnthropic({ model: llm.model, apiKey: llm.apiKey });
   }
 
   async query(input: RagQuery): Promise<RagResponse> {

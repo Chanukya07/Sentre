@@ -27,6 +27,36 @@ Selectable via the `RagEngineName` type (`"custom" | "vercel-ai" | "langchain"
 factory, and, in the app, either the `DEFAULT_RAG_ENGINE` env var or the
 `engine` field on `POST /api/rag/query`.
 
+## Two independent axes: engine and provider
+
+Which *framework* orchestrates generation (the four engines above) is
+separate from which *model* generates. `LLM_PROVIDER` picks the latter:
+
+| Provider | Credentials | Model |
+|---|---|---|
+| `anthropic` (default) | `ANTHROPIC_API_KEY` | `LLM_MODEL`, defaulting to `claude-haiku-4-5-20251001` |
+| `openrouter` | `OPENROUTER_API_KEY` | `LLM_MODEL` — **required**, a `vendor/model` slug from [openrouter.ai/models](https://openrouter.ai/models) |
+
+`resolveLlmConfig()` (`src/llm/config.ts`) reads the environment once and
+returns an `LlmConfig` that every engine takes. OpenRouter is OpenAI
+wire-compatible, so each framework needs only its OpenAI client pointed at
+`https://openrouter.ai/api/v1`:
+
+- **vercel-ai** — `createOpenAI({ baseURL })` instead of `createAnthropic()`
+- **langchain** — `ChatOpenAI({ configuration: { baseURL } })` instead of `ChatAnthropic`
+- **llamaindex** — `@llamaindex/openai` with `additionalSessionOptions.baseURL`
+- **custom** — a direct `POST /chat/completions` (no SDK), mirroring how it
+  calls Anthropic's REST API directly
+
+The model is *required* rather than defaulted for OpenRouter deliberately: it
+hosts thousands of slugs and no default is meaningful, so a guessed one would
+surface as a confusing upstream 404 instead of a clear setup error.
+
+**Retrieval is unaffected by this switch.** Embeddings always come from Voyage,
+so the vector space is identical no matter which model generates — the same
+property that makes the four-engine comparison fair also makes the provider
+swap safe. `VOYAGE_API_KEY` is required either way.
+
 ## Why retrieval is NOT delegated to LangChain/LlamaIndex's own vector store classes
 
 LangChain and LlamaIndex both ship their own `VectorStore` abstractions. This

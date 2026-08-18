@@ -15,6 +15,12 @@ import { CustomEngine } from "./custom-engine";
 import { RagEngineError } from "./base-engine";
 import { InMemoryVectorStore } from "../vectordb/implementations/in-memory-store";
 
+const ANTHROPIC_LLM = {
+  provider: "anthropic" as const,
+  apiKey: "anthropic-key",
+  model: "claude-haiku-4-5-20251001",
+};
+
 async function seededStore() {
   const store = new InMemoryVectorStore();
   await store.upsert([
@@ -34,7 +40,7 @@ describe("CustomEngine", () => {
   it("embeds the question as a query, not a document", async () => {
     // Voyage returns different vectors per input_type; embedding a question as
     // "document" silently degrades retrieval instead of failing loudly.
-    const engine = new CustomEngine(await seededStore(), "anthropic-key", "voyage-key");
+    const engine = new CustomEngine(await seededStore(), ANTHROPIC_LLM, "voyage-key");
 
     await engine.query({ question: "which is nostalgic?" });
 
@@ -42,7 +48,7 @@ describe("CustomEngine", () => {
   });
 
   it("returns the retrieved chunks as sources alongside the answer", async () => {
-    const engine = new CustomEngine(await seededStore(), "anthropic-key", "voyage-key");
+    const engine = new CustomEngine(await seededStore(), ANTHROPIC_LLM, "voyage-key");
 
     const response = await engine.query({ question: "which is nostalgic?", topK: 1 });
 
@@ -53,7 +59,7 @@ describe("CustomEngine", () => {
   });
 
   it("grounds the LLM call in the retrieved text", async () => {
-    const engine = new CustomEngine(await seededStore(), "anthropic-key", "voyage-key");
+    const engine = new CustomEngine(await seededStore(), ANTHROPIC_LLM, "voyage-key");
 
     await engine.query({ question: "which is nostalgic?", topK: 1 });
 
@@ -64,7 +70,7 @@ describe("CustomEngine", () => {
 
   it("wraps downstream failures in RagEngineError tagged with the engine", async () => {
     mockEmbedText.mockRejectedValue(new Error("voyage is down"));
-    const engine = new CustomEngine(await seededStore(), "anthropic-key", "voyage-key");
+    const engine = new CustomEngine(await seededStore(), ANTHROPIC_LLM, "voyage-key");
 
     await expect(engine.query({ question: "anything" })).rejects.toThrow(RagEngineError);
     await expect(engine.query({ question: "anything" })).rejects.toMatchObject({ engine: "custom" });
@@ -72,7 +78,7 @@ describe("CustomEngine", () => {
 
   it("returns an empty answer rather than throwing when the model emits no text block", async () => {
     mockCreate.mockResolvedValue({ content: [] });
-    const engine = new CustomEngine(await seededStore(), "anthropic-key", "voyage-key");
+    const engine = new CustomEngine(await seededStore(), ANTHROPIC_LLM, "voyage-key");
 
     await expect(engine.query({ question: "anything" })).resolves.toMatchObject({ answer: "" });
   });

@@ -5,10 +5,13 @@
  * and runs the same question through all four engines, so you can see
  * the framework differences with zero database setup.
  *
- * Requires ANTHROPIC_API_KEY and VOYAGE_API_KEY in the environment.
+ * Requires VOYAGE_API_KEY plus whichever LLM provider you select:
+ * ANTHROPIC_API_KEY (default), or LLM_PROVIDER=openrouter with
+ * OPENROUTER_API_KEY and LLM_MODEL.
  */
 import { InMemoryVectorStore } from "../src/vectordb/implementations/in-memory-store";
 import { embedText } from "../src/embeddings/voyage-client";
+import { resolveLlmConfig } from "../src/llm/config";
 import { createRagEngine } from "../src/engine-factory";
 import type { RagEngineName } from "@sentre/shared";
 
@@ -19,11 +22,12 @@ const SAMPLE_PRODUCTS = [
 ];
 
 async function main() {
-  const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+  const llm = resolveLlmConfig();
   const voyageApiKey = process.env.VOYAGE_API_KEY;
-  if (!anthropicApiKey || !voyageApiKey) {
-    throw new Error("Set ANTHROPIC_API_KEY and VOYAGE_API_KEY to run this example.");
+  if (!voyageApiKey) {
+    throw new Error("Set VOYAGE_API_KEY to run this example.");
   }
+  console.log(`Provider: ${llm.provider} · model: ${llm.model}`);
 
   const vectorStore = new InMemoryVectorStore();
   for (const product of SAMPLE_PRODUCTS) {
@@ -35,7 +39,7 @@ async function main() {
   const engines: RagEngineName[] = ["custom", "vercel-ai", "langchain", "llamaindex"];
 
   for (const engineName of engines) {
-    const engine = createRagEngine(engineName, { vectorStore, anthropicApiKey, voyageApiKey });
+    const engine = createRagEngine(engineName, { vectorStore, llm, voyageApiKey });
     const response = await engine.query({ question });
     console.log(`\n=== ${engineName} ===`);
     console.log(response.answer);

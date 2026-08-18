@@ -25,13 +25,14 @@ scripts/offline/        Python pipeline: synthetic data -> ABSA -> embeddings
 - Node.js 20+
 - Python 3.10+ (offline pipeline only)
 - A Neon project (use the pooled `DATABASE_URL`)
-- `ANTHROPIC_API_KEY` and `VOYAGE_API_KEY`
+- `VOYAGE_API_KEY` (embeddings), plus an LLM provider key — either
+  `ANTHROPIC_API_KEY` (default) or `OPENROUTER_API_KEY`
 
 ## Setup
 
 ```bash
 cp .env.example .env.local
-# fill in DATABASE_URL, ANTHROPIC_API_KEY, VOYAGE_API_KEY
+# fill in DATABASE_URL, VOYAGE_API_KEY, and your LLM provider key
 npm install
 ```
 
@@ -67,6 +68,20 @@ npm run offline:generate   # synthetic catalog + reviews
 npm run offline:absa       # Claude tool-use: sentiment, emotion tags, nostalgia flag
 npm run offline:index      # Voyage AI embeddings -> Neon (products, reviews, embeddings)
 ```
+
+## Choosing an LLM provider
+
+Generation runs on Anthropic by default. To use any model on OpenRouter
+instead, set in `.env.local` (or the Vercel project):
+
+```bash
+LLM_PROVIDER=openrouter
+OPENROUTER_API_KEY=sk-or-...
+LLM_MODEL=anthropic/claude-3.5-haiku   # any slug from openrouter.ai/models
+```
+
+All four RAG engines and the concierge honour this. Embeddings always come
+from Voyage, so switching provider never invalidates the indexed vectors.
 
 ## RAG engine comparison
 
