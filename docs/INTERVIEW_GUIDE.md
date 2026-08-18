@@ -13,7 +13,7 @@ made here. Written for AI/LLM-company interviews at entry level.
 > SDK, and one I wrote by hand — all sharing a single pgvector retrieval
 > path so the frameworks can be compared fairly. There's also a streaming
 > concierge chat that classifies the sentiment of every message and
-> escalates frustrated shoppers to a human. Postgres is on Neon with
+> escalates frustrated shoppers to a human. Postgres is on Supabase with
 > pgvector; embeddings are Voyage AI; generation is Claude."
 
 ## The demo script (5 minutes)
@@ -69,13 +69,25 @@ complexity is the problem being solved.
 ### "Why pgvector instead of Pinecone/Weaviate/a vector DB?"
 
 The data is relational (products → reviews → embeddings with foreign keys),
-volumes are small, and Neon's serverless driver works over HTTP from
-Vercel functions. One database means one thing to operate, transactional
+and volumes are small. One database means one thing to operate, transactional
 writes across tables, and SQL filters (`source_type`, `is_nostalgic` in
 metadata) in the same query as the ANN search — with an HNSW index for
 speed. If I outgrew it (tens of millions of vectors, heavy QPS), the
 `VectorStore` interface means adding a Pinecone implementation is one new
 class, no engine changes.
+
+### "Postgres from a serverless function — doesn't that exhaust connections?"
+
+Yes, if you connect directly. Vercel functions scale out per request, and a
+raw TCP connection per invocation would blow through Postgres's connection
+limit under real concurrency. That's why `DATABASE_URL` points at Supabase's
+Supavisor pooler in *transaction* mode (port 6543) rather than a direct
+connection, and the driver sets `prepare: false` — transaction-mode pooling
+doesn't support server-side prepared statements, since a pooled connection
+can be handed to a different client between statements. Getting this wrong
+is a real, common failure mode with Postgres-on-serverless, and it's worth
+naming that trade-off explicitly rather than pretending connection pooling
+is free.
 
 ### "How do you keep embeddings consistent?"
 

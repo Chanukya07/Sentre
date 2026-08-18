@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { EmbeddingVector, RetrievedChunk } from "@sentre/shared";
 import type { VectorStore } from "../interface";
 import { embeddings } from "../../db/schema";
@@ -9,14 +9,14 @@ function toVectorLiteral(values: number[]): string {
 }
 
 /**
- * Production vector store backed by Neon Postgres + pgvector, matching the
- * `embeddings` table populated by the offline ingestion pipeline
+ * Production vector store backed by Postgres + pgvector (Supabase), matching
+ * the `embeddings` table populated by the offline ingestion pipeline
  * (scripts/offline/index_embeddings.py). Uses cosine distance (`<=>`) with
  * the HNSW index created in the Drizzle migration.
  */
 export class PgVectorStore implements VectorStore {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers pass their own composed schema type; this store only uses schema-agnostic query builder methods
-  constructor(private readonly db: NeonHttpDatabase<any>) {}
+  constructor(private readonly db: PostgresJsDatabase<any>) {}
 
   async upsert(vectors: EmbeddingVector[]): Promise<void> {
     for (const vector of vectors) {
@@ -40,6 +40,8 @@ export class PgVectorStore implements VectorStore {
       ? sql`AND metadata->>'is_nostalgic' = 'true'`
       : sql``;
 
+    // postgres-js's db.execute() resolves to the row array directly (unlike
+    // Neon's HTTP driver, which wraps it as { rows: [...] }).
     const rows = await this.db.execute<{
       id: string;
       content: string;
@@ -53,7 +55,7 @@ export class PgVectorStore implements VectorStore {
       LIMIT ${topK}
     `);
 
-    return rows.rows.map((row) => ({
+    return rows.map((row) => ({
       id: row.id,
       text: row.content,
       score: 1 - row.distance,

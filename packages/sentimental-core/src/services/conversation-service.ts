@@ -1,5 +1,5 @@
 import { asc, eq } from "drizzle-orm";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { conversations } from "../db/schema";
 
 export interface ConversationTurn {
@@ -22,7 +22,7 @@ export interface AppendTurnInput {
 
 export class ConversationService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers pass their own composed schema type; this service only uses schema-agnostic query builder methods
-  constructor(private readonly db: NeonHttpDatabase<any>) {}
+  constructor(private readonly db: PostgresJsDatabase<any>) {}
 
   async appendTurn(input: AppendTurnInput): Promise<void> {
     await this.db.insert(conversations).values({

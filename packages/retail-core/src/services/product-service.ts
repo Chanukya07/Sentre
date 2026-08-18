@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { products, reviews } from "../db/schema";
 import type { ProductRecord, ReviewRecord } from "../types";
 
 export class ProductService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- callers pass their own composed schema type; this service only uses schema-agnostic query builder methods
-  constructor(private readonly db: NeonHttpDatabase<any>) {}
+  constructor(private readonly db: PostgresJsDatabase<any>) {}
 
   async listProducts(): Promise<ProductRecord[]> {
     return this.db.select().from(products);

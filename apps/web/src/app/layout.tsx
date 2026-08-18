@@ -53,7 +53,7 @@ export default function RootLayout({
             <p>
               <span className="font-display text-ink">Sentre</span> — retrieval-grounded storytelling for retail.
             </p>
-            <p>Next.js · Neon pgvector · four RAG engines</p>
+            <p>Next.js · Supabase pgvector · four RAG engines</p>
           </div>
         </footer>
         <SpeedInsights />

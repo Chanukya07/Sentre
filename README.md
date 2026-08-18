@@ -24,7 +24,7 @@ scripts/offline/        Python pipeline: synthetic data -> ABSA -> embeddings
 
 - Node.js 20+
 - Python 3.10+ (offline pipeline only)
-- A Neon project (use the pooled `DATABASE_URL`)
+- A Supabase project (use the Supavisor pooled `DATABASE_URL`, port 6543)
 - `VOYAGE_API_KEY` (embeddings), plus an LLM provider key — either
   `ANTHROPIC_API_KEY` (default) or `OPENROUTER_API_KEY`
 
@@ -47,7 +47,7 @@ npm run test         # runs unit tests (vitest) across packages
 
 Health check: `curl http://localhost:3000/api/health`
 
-## Database (Neon + Drizzle + pgvector)
+## Database (Supabase + Drizzle + pgvector)
 
 Each package owns its own tables (`retail-core`: products/reviews,
 `rag-core`: embeddings, `sentimental-core`: conversations); `apps/web`
@@ -66,7 +66,7 @@ Creates `products`, `reviews`, `embeddings` (`vector(1024)` + HNSW index),
 python3 -m pip install -r scripts/offline/requirements.txt
 npm run offline:generate   # synthetic catalog + reviews
 npm run offline:absa       # Claude tool-use: sentiment, emotion tags, nostalgia flag
-npm run offline:index      # Voyage AI embeddings -> Neon (products, reviews, embeddings)
+npm run offline:index      # Voyage AI embeddings -> Supabase (products, reviews, embeddings)
 ```
 
 ## Is the AI actually working?
