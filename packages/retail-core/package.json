@@ -10,7 +10,6 @@
     "clean": "true"
   },
   "dependencies": {
-    "@sentre/shared": "*",
     "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
