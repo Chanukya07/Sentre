@@ -12,20 +12,19 @@
     "example:compare-engines": "tsx examples/compare-engines.ts"
   },
   "dependencies": {
-    "@sentre/shared": "*",
-    "@anthropic-ai/sdk": "^0.115.0",
-    "@neondatabase/serverless": "^1.1.0",
-    "drizzle-orm": "^0.45.2",
-    "ai": "^5.0.0",
     "@ai-sdk/anthropic": "^2.0.0",
-    "langchain": "^0.3.0",
+    "@anthropic-ai/sdk": "^0.115.0",
     "@langchain/anthropic": "^0.3.0",
     "@langchain/core": "^0.3.0",
-    "llamaindex": "^0.9.0",
-    "@llamaindex/anthropic": "^0.3.0"
+    "@llamaindex/anthropic": "^0.3.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@sentre/shared": "*",
+    "ai": "^5.0.0",
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
+    "tsx": "^4.23.1",
     "typescript": "^5",
-    "tsx": "^4.23.1"
+    "vitest": "^3.2.7"
   }
 }
