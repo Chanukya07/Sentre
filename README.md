@@ -69,6 +69,21 @@ npm run offline:absa       # Claude tool-use: sentiment, emotion tags, nostalgia
 npm run offline:index      # Voyage AI embeddings -> Neon (products, reviews, embeddings)
 ```
 
+## Is the AI actually working?
+
+The unit tests mock every network call, so they prove the wiring but never
+touch a real model. To verify the live pipeline:
+
+```bash
+npm run smoke
+```
+
+It makes genuine calls and reports each stage independently — LLM config,
+Voyage embeddings (asserting the 1024 dimensions the schema expects),
+database connectivity and row counts, then one full question end to end
+through retrieval and generation. A failing stage prints the exact cause
+rather than hiding behind an earlier one.
+
 ## Choosing an LLM provider
 
 Generation runs on Anthropic by default. To use any model on OpenRouter

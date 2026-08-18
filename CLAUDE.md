@@ -20,6 +20,7 @@ npm run type-check     # tsc across all workspaces
 npm run test           # vitest (rag-core + sentimental-core)
 npm run db:migrate     # drizzle migrations (needs DATABASE_URL)
 npm run db:seed        # curated demo catalog (needs DATABASE_URL + VOYAGE_API_KEY)
+npm run smoke          # real end-to-end check of LLM + embeddings + DB + RAG
 ```
 
 Single-package runs: `npx turbo run test --filter=@sentre/rag-core` or cd into
@@ -67,7 +68,9 @@ the package and use its scripts. One test file:
   build time must be declared in `turbo.json`'s `build.env` or Turbo strips
   them.
 - Tests mock LLM/embedding calls (see `custom-engine.test.ts` for the
-  vi.hoisted mock pattern); no test needs API keys or a database.
+  vi.hoisted mock pattern); no test needs API keys or a database. Because of
+  that, passing tests never prove the AI actually works — `npm run smoke`
+  (`apps/web/scripts/smoke.ts`) is the only check that makes real calls.
 - The Python `scripts/offline/` pipeline is the full-fidelity ingestion path;
   `apps/web/scripts/seed.ts` is the fast demo path. Keep both working.
 
