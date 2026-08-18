@@ -13,10 +13,13 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.0",
+    "@ai-sdk/openai": "^2.0.0",
     "@anthropic-ai/sdk": "^0.115.0",
     "@langchain/anthropic": "^0.3.0",
     "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.6.0",
     "@llamaindex/anthropic": "^0.3.0",
+    "@llamaindex/openai": "^0.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@sentre/shared": "*",
     "ai": "^5.0.0",

@@ -6,7 +6,7 @@ import { InMemoryVectorStore } from "./vectordb/implementations/in-memory-store"
 
 const config = {
   vectorStore: new InMemoryVectorStore(),
-  anthropicApiKey: "test-anthropic-key",
+  llm: { provider: "anthropic" as const, apiKey: "test-anthropic-key", model: "claude-haiku-4-5-20251001" },
   voyageApiKey: "test-voyage-key",
 };
 

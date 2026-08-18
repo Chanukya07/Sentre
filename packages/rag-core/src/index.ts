@@ -7,5 +7,7 @@ export * from "./vectordb/interface";
 export * from "./vectordb/implementations/pgvector-store";
 export * from "./vectordb/implementations/in-memory-store";
 export * from "./embeddings/voyage-client";
+export * from "./llm/config";
+export * from "./llm/openai-compat";
 export * from "./engine-factory";
 export * from "./db/schema";

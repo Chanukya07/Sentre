@@ -3,6 +3,8 @@ import type { RagQuery, RagResponse } from "@sentre/shared";
 import { DEFAULT_TOP_K } from "@sentre/shared";
 import { RagEngine, RagEngineError } from "./base-engine";
 import type { VectorStore } from "../vectordb/interface";
+import type { LlmConfig } from "../llm/config";
+import { chatCompletion } from "../llm/openai-compat";
 import { embedText } from "../embeddings/voyage-client";
 import { buildRagPrompt } from "../prompts/rag-prompt";
 
@@ -14,11 +16,27 @@ import { buildRagPrompt } from "../prompts/rag-prompt";
  */
 export class CustomEngine extends RagEngine {
   readonly name = "custom" as const;
-  private readonly client: Anthropic;
 
-  constructor(vectorStore: VectorStore, anthropicApiKey: string, private readonly voyageApiKey: string) {
+  constructor(
+    vectorStore: VectorStore,
+    private readonly llm: LlmConfig,
+    private readonly voyageApiKey: string,
+  ) {
     super(vectorStore);
-    this.client = new Anthropic({ apiKey: anthropicApiKey });
+  }
+
+  private async generate(prompt: string): Promise<string> {
+    if (this.llm.provider === "openrouter") {
+      return chatCompletion(this.llm, prompt);
+    }
+
+    const response = await new Anthropic({ apiKey: this.llm.apiKey }).messages.create({
+      model: this.llm.model,
+      max_tokens: 1024,
+      messages: [{ role: "user", content: prompt }],
+    });
+    const answer = response.content.find((block) => block.type === "text");
+    return answer?.type === "text" ? answer.text : "";
   }
 
   async query(input: RagQuery): Promise<RagResponse> {
@@ -26,16 +44,8 @@ export class CustomEngine extends RagEngine {
       const queryEmbedding = await embedText(input.question, "query", this.voyageApiKey);
       const chunks = await this.vectorStore.query(queryEmbedding, input.topK ?? DEFAULT_TOP_K, input.filters);
 
-      const response = await this.client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
-        messages: [{ role: "user", content: buildRagPrompt(input.question, chunks) }],
-      });
-
-      const answer = response.content.find((block) => block.type === "text");
-
       return {
-        answer: answer?.type === "text" ? answer.text : "",
+        answer: await this.generate(buildRagPrompt(input.question, chunks)),
         sources: chunks,
         engine: this.name,
       };

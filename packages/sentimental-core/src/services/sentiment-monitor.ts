@@ -1,4 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
+import type { LlmConfig } from "@sentre/rag-core";
+import { chatCompletionTool } from "@sentre/rag-core";
 
 export interface TurnSentiment {
   sentiment: "positive" | "negative" | "neutral" | "mixed";
@@ -6,27 +8,36 @@ export interface TurnSentiment {
   shouldEscalate: boolean;
 }
 
-const SENTIMENT_TOOL = {
-  name: "turn_sentiment",
-  description: "Classify the emotional state of a retail chat message.",
-  input_schema: {
-    type: "object" as const,
-    properties: {
-      sentiment: { type: "string", enum: ["positive", "negative", "neutral", "mixed"] },
-      frustration_level: {
-        type: "integer",
-        minimum: 0,
-        maximum: 3,
-        description: "0 calm, 1 mildly annoyed, 2 frustrated, 3 angry or distressed",
-      },
-      should_escalate: {
-        type: "boolean",
-        description: "True if a human should take over (anger, distress, repeated failure, refund dispute)",
-      },
+interface RawSentiment {
+  sentiment: TurnSentiment["sentiment"];
+  frustration_level: number;
+  should_escalate: boolean;
+}
+
+const TOOL_NAME = "turn_sentiment";
+const TOOL_DESCRIPTION = "Classify the emotional state of a retail chat message.";
+
+const TOOL_SCHEMA = {
+  type: "object" as const,
+  properties: {
+    sentiment: { type: "string", enum: ["positive", "negative", "neutral", "mixed"] },
+    frustration_level: {
+      type: "integer",
+      minimum: 0,
+      maximum: 3,
+      description: "0 calm, 1 mildly annoyed, 2 frustrated, 3 angry or distressed",
     },
-    required: ["sentiment", "frustration_level", "should_escalate"],
+    should_escalate: {
+      type: "boolean",
+      description: "True if a human should take over (anger, distress, repeated failure, refund dispute)",
+    },
   },
+  required: ["sentiment", "frustration_level", "should_escalate"],
 };
+
+function prompt(message: string): string {
+  return `Classify the sentiment of this retail customer chat message:\n\n${message}`;
+}
 
 /**
  * Per-turn sentiment classifier for the chat assistant. A turn escalates
@@ -35,41 +46,40 @@ const SENTIMENT_TOOL = {
  * model under-called should_escalate.
  */
 export class SentimentMonitor {
-  private readonly client: Anthropic;
+  constructor(private readonly llm: LlmConfig) {}
 
-  constructor(anthropicApiKey: string) {
-    this.client = new Anthropic({ apiKey: anthropicApiKey });
-  }
+  private async classify(message: string): Promise<RawSentiment> {
+    if (this.llm.provider === "openrouter") {
+      return chatCompletionTool<RawSentiment>(this.llm, prompt(message), {
+        name: TOOL_NAME,
+        description: TOOL_DESCRIPTION,
+        parameters: TOOL_SCHEMA,
+      });
+    }
 
-  async analyze(message: string): Promise<TurnSentiment> {
-    const response = await this.client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+    const response = await new Anthropic({ apiKey: this.llm.apiKey }).messages.create({
+      model: this.llm.model,
       max_tokens: 200,
-      tools: [SENTIMENT_TOOL],
-      tool_choice: { type: "tool", name: "turn_sentiment" },
-      messages: [
-        {
-          role: "user",
-          content: `Classify the sentiment of this retail customer chat message:\n\n${message}`,
-        },
-      ],
+      tools: [{ name: TOOL_NAME, description: TOOL_DESCRIPTION, input_schema: TOOL_SCHEMA }],
+      tool_choice: { type: "tool", name: TOOL_NAME },
+      messages: [{ role: "user", content: prompt(message) }],
     });
 
     for (const block of response.content) {
-      if (block.type === "tool_use" && block.name === "turn_sentiment") {
-        const input = block.input as {
-          sentiment: TurnSentiment["sentiment"];
-          frustration_level: number;
-          should_escalate: boolean;
-        };
-        return {
-          sentiment: input.sentiment,
-          frustrationLevel: input.frustration_level,
-          shouldEscalate: input.should_escalate || input.frustration_level >= 2,
-        };
+      if (block.type === "tool_use" && block.name === TOOL_NAME) {
+        return block.input as RawSentiment;
       }
     }
 
     throw new Error("Sentiment classification returned no tool output");
+  }
+
+  async analyze(message: string): Promise<TurnSentiment> {
+    const input = await this.classify(message);
+    return {
+      sentiment: input.sentiment,
+      frustrationLevel: input.frustration_level,
+      shouldEscalate: input.should_escalate || input.frustration_level >= 2,
+    };
   }
 }

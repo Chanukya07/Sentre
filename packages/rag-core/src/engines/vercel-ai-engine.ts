@@ -1,9 +1,11 @@
-import { anthropic } from "@ai-sdk/anthropic";
-import { generateText } from "ai";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAI } from "@ai-sdk/openai";
+import { generateText, type LanguageModel } from "ai";
 import type { RagQuery, RagResponse } from "@sentre/shared";
 import { DEFAULT_TOP_K } from "@sentre/shared";
 import { RagEngine, RagEngineError } from "./base-engine";
 import type { VectorStore } from "../vectordb/interface";
+import type { LlmConfig } from "../llm/config";
 import { embedText } from "../embeddings/voyage-client";
 import { buildRagPrompt } from "../prompts/rag-prompt";
 
@@ -14,9 +16,15 @@ import { buildRagPrompt } from "../prompts/rag-prompt";
  */
 export class VercelAiEngine extends RagEngine {
   readonly name = "vercel-ai" as const;
+  private readonly model: LanguageModel;
 
-  constructor(vectorStore: VectorStore, private readonly voyageApiKey: string) {
+  constructor(
+    vectorStore: VectorStore,
+    llm: LlmConfig,
+    private readonly voyageApiKey: string,
+  ) {
     super(vectorStore);
+    this.model = createLanguageModel(llm);
   }
 
   async query(input: RagQuery): Promise<RagResponse> {
@@ -25,7 +33,7 @@ export class VercelAiEngine extends RagEngine {
       const chunks = await this.vectorStore.query(queryEmbedding, input.topK ?? DEFAULT_TOP_K, input.filters);
 
       const { text } = await generateText({
-        model: anthropic("claude-haiku-4-5-20251001"),
+        model: this.model,
         prompt: buildRagPrompt(input.question, chunks),
       });
 
@@ -34,4 +42,15 @@ export class VercelAiEngine extends RagEngine {
       throw new RagEngineError("Vercel AI engine query failed", this.name, error);
     }
   }
+}
+
+/**
+ * OpenRouter speaks the OpenAI wire format, so it plugs into the AI SDK's
+ * OpenAI provider with only a baseURL override.
+ */
+export function createLanguageModel(llm: LlmConfig): LanguageModel {
+  if (llm.provider === "openrouter") {
+    return createOpenAI({ apiKey: llm.apiKey, baseURL: llm.baseUrl })(llm.model);
+  }
+  return createAnthropic({ apiKey: llm.apiKey })(llm.model);
 }
