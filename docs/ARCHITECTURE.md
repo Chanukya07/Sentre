@@ -38,7 +38,7 @@ for either.
 Offline (scripts/offline/, Python, run manually — not part of the deployed app)
   generate_synthetic_data.py  -> synthetic_catalog.json
   run_absa.py                 -> Claude tool-use extracts sentiment/emotion_tags/is_nostalgic
-  index_embeddings.py         -> Voyage AI embeddings -> Neon Postgres (products, reviews, embeddings)
+  index_embeddings.py         -> Voyage AI embeddings -> Supabase Postgres (products, reviews, embeddings)
 
 Runtime (apps/web, Next.js Route Handlers)
   GET  /api/products           -> retail-core ProductService -> products table
@@ -79,8 +79,10 @@ themselves are also swappable.
 
 - **apps/web** deploys to Vercel as a standard Next.js app. Route Handlers
   under `src/app/api/**` run as serverless functions.
-- **Database**: Neon Postgres (serverless driver, HTTP-based — no connection
-  pooling required from a serverless function).
+- **Database**: Supabase Postgres, via `postgres` (postgres-js) over Supavisor's
+  transaction pooler (port 6543) with `prepare: false` — a raw per-invocation
+  TCP connection would exhaust Postgres's connection limit under serverless
+  concurrency, so the pooler is required, not optional.
 - **Offline pipeline**: run manually/locally or in CI before deploy; it is
   not invoked at runtime. See the root `README.md` for the exact commands.
 
@@ -98,4 +100,4 @@ themselves are also swappable.
 - `packages/rag-core/examples/compare-engines.ts` exercises all four engines
   end-to-end against an in-memory store (needs `ANTHROPIC_API_KEY` and
   `VOYAGE_API_KEY`).
-- `/api/health` verifies the deployed app can reach Neon.
+- `/api/health` verifies the deployed app can reach Supabase.

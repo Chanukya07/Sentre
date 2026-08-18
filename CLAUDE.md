@@ -48,9 +48,14 @@ the package and use its scripts. One test file:
 - **Embeddings must stay in one vector space**: query-time embedding uses
   Voyage `voyage-4-lite` with `input_type: "query"`; indexed documents used
   `"document"`. Changing the model requires re-indexing everything.
-- **Services take `NeonHttpDatabase<any>`** and use only schema-agnostic query
-  builder methods — never the relational `.query` API (it pins the composed
-  schema type and breaks cross-package reuse).
+- **Services take `PostgresJsDatabase<any>`** and use only schema-agnostic
+  query builder methods — never the relational `.query` API (it pins the
+  composed schema type and breaks cross-package reuse).
+- **`DATABASE_URL` must be the Supavisor transaction-pooler string** (port
+  6543), not a direct connection — Vercel functions scale out per request,
+  and a raw TCP connection per invocation exhausts Postgres's connection
+  limit. The driver sets `prepare: false` accordingly (transaction-mode
+  pooling doesn't support server-side prepared statements).
 - **Design tokens** live in `apps/web/src/app/globals.css` as CSS variables
   (light + dark), mapped into Tailwind v4 via `@theme inline`. Use the
   semantic classes (`bg-canvas`, `text-ink`, `border-line`, `bg-accent`…);

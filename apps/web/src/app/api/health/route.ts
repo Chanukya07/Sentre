@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+import postgres from "postgres";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -12,9 +12,10 @@ export async function GET() {
   }
 
   try {
-    const sql = neon(databaseUrl);
+    const sql = postgres(databaseUrl, { prepare: false });
     const result = await sql`select now() as now`;
-    const now = (result as Array<{ now: string }>)[0]?.now;
+    const now = result[0]?.now as string | undefined;
+    await sql.end();
 
     return NextResponse.json({
       ok: true,

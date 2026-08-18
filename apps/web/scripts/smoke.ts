@@ -75,8 +75,8 @@ async function main() {
     const embeddings = await db.execute<{ count: string }>(
       sql`SELECT count(*) AS count FROM embeddings WHERE embedding IS NOT NULL`,
     );
-    productCount = Number(products.rows[0]?.count ?? 0);
-    embeddingCount = Number(embeddings.rows[0]?.count ?? 0);
+    productCount = Number(products[0]?.count ?? 0);
+    embeddingCount = Number(embeddings[0]?.count ?? 0);
     return `${productCount} products, ${embeddingCount} embeddings`;
   });
 
